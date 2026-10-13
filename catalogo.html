@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catálogo</title>
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Veja as opções do catálogo">
+<meta property="og:description" content="Toque em “Quero esta” na opção que você gostar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#f3f2f2;color:#201e1d;font-family:Archivo,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+  a{color:#b8250f}
+  button{font:inherit}
+  button:focus-visible{outline:2px solid #ec3013;outline-offset:2px}
+</style>
+</head>
+<body>
+<div id="app" style="max-width:1080px;margin:0 auto;padding:20px 16px 120px;display:flex;flex-direction:column;gap:18px;">
+  <p style="margin:0;font-size:15px;">Carregando o catálogo…</p>
+</div>
+<div id="aviso" style="position:fixed;left:0;right:0;bottom:0;display:none;background:#201e1d;color:#fff;padding:16px;font-size:15px;line-height:1.4;border-top:2px solid #ec3013;"></div>
+<script>
+(function(){
+  var C=window.SF_CONFIG||{},API=(C.url||'')+'/functions/v1/catalogo';
+  var q=new URLSearchParams(location.search),T=(q.get('t')||'').replace(/[^a-f0-9]/gi,''),CAT=q.get('c')||'';
+  var app=document.getElementById('app'),aviso=document.getElementById('aviso');
+  var D=null,filtro=null,enviando=false;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function brl(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:Number(v)%1?2:0,maximumFractionDigits:2});}
+  function dataBR(d){var p=String(d).split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+  function post(b){b.t=T;return fetch(API,{method:'POST',headers:{'Content-Type':'application/json',apikey:C.anonKey||'',Authorization:'Bearer '+(C.anonKey||'')},body:JSON.stringify(b)}).then(function(r){return r.json();});}
+  function falha(msg){app.innerHTML='<h1 style="margin:0;font-size:24px;font-weight:800;">Catálogo indisponível</h1><p style="margin:0;font-size:15px;line-height:1.5;">'+esc(msg)+' Peça um novo link na conversa do WhatsApp.</p>';}
+  function mostrarAviso(html){aviso.innerHTML=html;aviso.style.display='block';}
+  function render(){
+    var cats=[];D.kits.forEach(function(k){if(k.categoria&&cats.indexOf(k.categoria)<0)cats.push(k.categoria);});cats.sort();
+    var lista=D.kits.filter(function(k){return !filtro||k.categoria===filtro;});
+    var h='<header style="display:flex;flex-direction:column;gap:6px;padding-bottom:14px;border-bottom:2px solid #201e1d;">'+
+      '<span style="font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#b8250f;">'+esc(D.empresa)+'</span>'+
+      '<h1 style="margin:0;font-size:28px;line-height:1.1;font-weight:800;">Nossas opções</h1>'+
+      '<span style="font-size:15px;line-height:1.4;">Veja as fotos e toque em <strong>Quero esta</strong> na que você gostar. A sua escolha vai direto para a conversa.</span>'+
+      (D.data?'<span style="font-size:14px;font-weight:700;padding-top:4px;">Disponibilidade para '+dataBR(D.data)+'</span>':'')+'</header>';
+    if(cats.length>1){h+='<nav style="display:flex;gap:8px;flex-wrap:wrap;">';[null].concat(cats).forEach(function(c){var on=filtro===c;h+='<button data-cat="'+esc(c==null?'':c)+'" style="cursor:pointer;min-height:44px;padding:0 16px;border:2px solid #201e1d;background:'+(on?'#201e1d':'transparent')+';color:'+(on?'#fff':'#201e1d')+';font-size:14px;font-weight:700;text-align:left;">'+esc(c==null?'Todas':c)+'</button>';});h+='</nav>';}
+    h+='<section style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:16px;">';
+    if(!lista.length)h+='<p style="margin:0;font-size:15px;">Nenhuma opção nesta categoria.</p>';
+    lista.forEach(function(k){
+      h+='<article style="display:flex;flex-direction:column;background:#fff;border:2px solid '+(k.escolhido?'#ec3013':'#201e1d')+';">'+
+        (k.foto?'<img src="'+esc(k.foto)+'" alt="'+esc(k.nome)+'" loading="lazy" style="display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-bottom:2px solid #201e1d;">':'')+
+        '<div style="display:flex;flex-direction:column;gap:10px;padding:16px;flex:1;">'+
+        (k.categoria?'<span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#b8250f;">'+esc(k.categoria)+'</span>':'')+
+        '<h2 style="margin:0;font-size:20px;font-weight:800;">'+esc(k.nome)+'</h2>'+
+        (k.escolhido?'<span style="font-size:13px;font-weight:700;color:#b8250f;">Sua escolha</span>':'')+
+        (k.descricao?'<p style="margin:0;font-size:14px;line-height:1.5;color:#4a4644;">'+esc(k.descricao)+'</p>':'')+
+        '<div style="display:flex;flex-direction:column;margin-top:auto;padding-top:6px;">';
+      k.opcoes.forEach(function(o){
+        h+='<div style="display:flex;flex-direction:column;gap:8px;padding:12px 0;border-top:2px solid #e3e1e0;">'+
+          '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;"><span style="font-size:14px;font-weight:600;">'+esc(o.nome)+'</span><strong style="font-size:20px;font-weight:800;">'+brl(o.preco)+'</strong></div>'+
+          (o.livre?'<button data-kit="'+esc(k.id)+'" data-mod="'+esc(o.modalidade)+'" style="cursor:pointer;min-height:48px;padding:0 16px;border:0;background:#ec3013;color:#fff;font-size:16px;font-weight:700;text-align:left;">Quero esta</button>'
+                  :'<span style="display:flex;align-items:center;min-height:48px;padding:0 16px;background:#e3e1e0;color:#4a4644;font-size:15px;font-weight:700;">Indisponível nessa data</span>')+
+          '</div>';
+      });
+      h+='</div></div></article>';
+    });
+    h+='</section>';
+    app.innerHTML=h;
+  }
+  app.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    if(b.hasAttribute('data-cat')){var v=b.getAttribute('data-cat');filtro=v||null;render();window.scrollTo(0,0);return;}
+    if(b.hasAttribute('data-kit')){
+      if(enviando)return;enviando=true;b.textContent='Enviando…';
+      var id=b.getAttribute('data-kit'),mod=b.getAttribute('data-mod');
+      post({acao:'escolher',produto_id:id,modalidade:mod}).then(function(r){
+        enviando=false;
+        if(r.erro){b.textContent='Quero esta';mostrarAviso(esc(r.erro));return;}
+        D.kits.forEach(function(k){k.escolhido=k.id===id;});render();
+        var k=D.kits.filter(function(x){return x.id===id;})[0];
+        mostrarAviso('<strong>Pronto! Enviamos sua escolha: '+esc(k?k.nome:'')+'.</strong><br>Pode voltar para o WhatsApp, a gente continua por lá.');
+      }).catch(function(){enviando=false;b.textContent='Quero esta';mostrarAviso('Não conseguimos enviar agora. Tente de novo em instantes.');});
+    }
+  });
+  if(T.length<20||!C.url){falha('Este link está incompleto.');return;}
+  post({acao:'ver'}).then(function(r){
+    if(r.erro){falha(r.erro+'.');return;}
+    D=r;document.title='Catálogo · '+r.empresa;
+    if(CAT){var lc=CAT.toLowerCase();D.kits.forEach(function(k){if(k.categoria&&k.categoria.toLowerCase()===lc)filtro=k.categoria;});}
+    render();
+  }).catch(function(){falha('Não conseguimos abrir o catálogo agora.');});
+})();
+</script>
+</body>
+</html>

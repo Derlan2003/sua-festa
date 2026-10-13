@@ -5,89 +5,152 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Catálogo</title>
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#222757">
 <meta property="og:title" content="Veja as opções do catálogo">
 <meta property="og:description" content="Toque em “Quero esta” na opção que você gostar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <style>
+  :root{--navy:#222757;--teal:#13998a;--green:#8cc63f;--green-d:#76ad2c;--orange:#f28c28;--blue:#2ea8dc;--sky:#9dc8ee;--pink:#fbb8b0;--ink:#3d4166;--muted:#6b6f8c;--line:#ebebf2;--soft:#f4f7fb}
   *{box-sizing:border-box}
-  html,body{margin:0;background:#f3f2f2;color:#201e1d;font-family:Archivo,system-ui,sans-serif;-webkit-text-size-adjust:100%}
-  a{color:#b8250f}
+  html,body{margin:0;background:#fff;color:var(--navy);font-family:Nunito,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+  a{color:var(--teal)}
   button{font:inherit}
-  button:focus-visible{outline:2px solid #ec3013;outline-offset:2px}
+  button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  .topo{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 0 var(--line)}
+  .topo-in{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:24px}
+  .logo{height:64px;width:auto;display:block;flex:none}
+  .marca{font-size:22px;font-weight:900}
+  .menu{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+  .menu::-webkit-scrollbar{display:none}
+  .menu button{flex:none;cursor:pointer;min-height:44px;padding:0 18px;border:0;border-radius:999px;background:transparent;color:var(--navy);font-size:15px;font-weight:800;white-space:nowrap}
+  .menu button:hover{background:var(--soft)}
+  .menu button.on{background:var(--navy);color:#fff}
+  .faixa{display:grid;grid-template-columns:repeat(6,1fr);height:5px}
+  .hero{background:var(--soft);padding:36px 20px 32px;text-align:center}
+  .hero h1{margin:0;font-size:34px;line-height:1.1;font-weight:900}
+  .hero p{margin:10px auto 0;max-width:520px;font-size:16px;line-height:1.5;color:var(--ink);text-wrap:pretty}
+  .chip{white-space:nowrap;display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:8px 16px;border-radius:999px;background:#fff;font-size:14px;font-weight:800;color:var(--navy)}
+  .chip i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--green)}
+  main{max-width:1120px;margin:0 auto;padding:28px 20px 140px}
+  .info{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:18px;font-size:15px;color:var(--muted)}
+  .info strong{white-space:nowrap;color:var(--navy);font-size:20px;font-weight:900}
+  .grade{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 24px}
+  .kit{display:flex;flex-direction:column;gap:12px}
+  .foto{position:relative;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:var(--soft)}
+  .foto img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+  .kit:hover .foto img{transform:scale(1.03)}
+  .selo{white-space:nowrap;position:absolute;top:12px;left:12px;padding:6px 12px;border-radius:999px;background:var(--navy);color:#fff;font-size:12px;font-weight:800}
+  .selo.escolha{left:auto;right:12px;background:var(--orange);color:var(--navy)}
+  .kit.escolhido .foto{box-shadow:0 0 0 3px var(--orange)}
+  .cat{font-size:13px;font-weight:700;color:var(--muted)}
+  .kit h2{margin:-6px 0 0;font-size:20px;line-height:1.2;font-weight:900}
+  .desc{margin:0;font-size:14px;line-height:1.5;color:var(--ink);text-wrap:pretty}
+  .opcoes{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:4px}
+  .op{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:14px;background:var(--soft)}
+  .op-l{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .op-l span{font-size:14px;font-weight:700;color:var(--ink)}
+  .op-l strong{font-size:20px;font-weight:900;color:var(--teal)}
+  .quero{cursor:pointer;min-height:48px;padding:0 20px;border:0;border-radius:999px;background:var(--green);color:var(--navy);font-size:16px;font-weight:900;text-align:center}
+  .quero:hover{background:var(--green-d)}
+  .quero:active{transform:translateY(1px)}
+  .indisp{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 16px;border-radius:999px;background:#e6e7ee;color:var(--muted);font-size:15px;font-weight:800}
+  .vazio{grid-column:1/-1;margin:0;padding:40px 0;font-size:16px;color:var(--muted);text-align:center}
+  #aviso{position:fixed;left:12px;right:12px;bottom:12px;display:none;max-width:560px;margin:0 auto;background:var(--navy);color:#fff;padding:16px 18px;border-radius:16px;font-size:15px;line-height:1.45;box-shadow:0 10px 30px rgba(34,39,87,.3);border-left:6px solid var(--green)}
+  @media (max-width:900px){.grade{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:640px){
+    .topo-in{flex-direction:column;align-items:stretch;gap:6px;padding:10px 12px 8px}
+    .logo{height:52px;margin:0 auto}
+    .marca{text-align:center}
+    .menu{margin:0 auto;max-width:100%}
+    .hero{padding:24px 16px}
+    .hero h1{font-size:28px}
+    main{padding:20px 16px 140px}
+    .grade{grid-template-columns:minmax(0,1fr);gap:32px}
+  }
 </style>
 </head>
 <body>
-<div id="app" style="max-width:1080px;margin:0 auto;padding:20px 16px 120px;display:flex;flex-direction:column;gap:18px;">
-  <p style="margin:0;font-size:15px;">Carregando o catálogo…</p>
-</div>
-<div id="aviso" style="position:fixed;left:0;right:0;bottom:0;display:none;background:#201e1d;color:#fff;padding:16px;font-size:15px;line-height:1.4;border-top:2px solid #ec3013;"></div>
+<header class="topo">
+  <div class="topo-in">
+    <div id="marca"></div>
+    <nav class="menu" id="menu" aria-label="Categorias"></nav>
+  </div>
+  <div class="faixa" aria-hidden="true"><span style="background:var(--sky)"></span><span style="background:var(--green)"></span><span style="background:var(--orange)"></span><span style="background:var(--blue)"></span><span style="background:var(--pink)"></span><span style="background:var(--teal)"></span></div>
+</header>
+<section class="hero" id="hero">
+  <h1>Nossas opções</h1>
+  <p>Carregando o catálogo…</p>
+</section>
+<main id="app"></main>
+<div id="aviso" role="status"></div>
 <script>
 (function(){
   var C=window.SF_CONFIG||{},API=(C.url||'')+'/functions/v1/catalogo';
   var q=new URLSearchParams(location.search),T=(q.get('t')||'').replace(/[^a-f0-9]/gi,''),CAT=q.get('c')||'';
-  var app=document.getElementById('app'),aviso=document.getElementById('aviso');
+  var app=document.getElementById('app'),aviso=document.getElementById('aviso'),menu=document.getElementById('menu'),hero=document.getElementById('hero'),marca=document.getElementById('marca');
   var D=null,filtro=null,enviando=false;
+  var LOGOS={'sua festa':'logo-sua-festa.png'};
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function brl(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:Number(v)%1?2:0,maximumFractionDigits:2});}
   function dataBR(d){var p=String(d).split('-');return p[2]+'/'+p[1]+'/'+p[0];}
   function post(b){b.t=T;return fetch(API,{method:'POST',headers:{'Content-Type':'application/json',apikey:C.anonKey||'',Authorization:'Bearer '+(C.anonKey||'')},body:JSON.stringify(b)}).then(function(r){return r.json();});}
-  function falha(msg){app.innerHTML='<h1 style="margin:0;font-size:24px;font-weight:800;">Catálogo indisponível</h1><p style="margin:0;font-size:15px;line-height:1.5;">'+esc(msg)+' Peça um novo link na conversa do WhatsApp.</p>';}
+  function falha(msg){hero.innerHTML='<h1>Catálogo indisponível</h1><p>'+esc(msg)+' Peça um novo link na conversa do WhatsApp.</p>';}
   function mostrarAviso(html){aviso.innerHTML=html;aviso.style.display='block';}
+  function topo(){
+    var lg=D.logo||LOGOS[String(D.empresa||'').trim().toLowerCase()];
+    marca.innerHTML=lg?'<img class="logo" src="'+esc(lg)+'" alt="'+esc(D.empresa)+'">':'<span class="marca">'+esc(D.empresa)+'</span>';
+    hero.innerHTML='<h1>Nossas opções</h1><p>Veja as fotos e toque em <strong>Quero esta</strong> na que você gostar. A sua escolha vai direto para a conversa.</p>'+
+      (D.data?'<span class="chip"><i></i>Disponibilidade para '+dataBR(D.data)+'</span>':'');
+  }
   function render(){
     var cats=[];D.kits.forEach(function(k){if(k.categoria&&cats.indexOf(k.categoria)<0)cats.push(k.categoria);});cats.sort();
+    var m='';if(cats.length>1)[null].concat(cats).forEach(function(c){m+='<button class="'+(filtro===c?'on':'')+'" data-cat="'+esc(c==null?'':c)+'">'+esc(c==null?'Todas':c)+'</button>';});
+    menu.innerHTML=m;
     var lista=D.kits.filter(function(k){return !filtro||k.categoria===filtro;});
-    var h='<header style="display:flex;flex-direction:column;gap:6px;padding-bottom:14px;border-bottom:2px solid #201e1d;">'+
-      '<span style="font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#b8250f;">'+esc(D.empresa)+'</span>'+
-      '<h1 style="margin:0;font-size:28px;line-height:1.1;font-weight:800;">Nossas opções</h1>'+
-      '<span style="font-size:15px;line-height:1.4;">Veja as fotos e toque em <strong>Quero esta</strong> na que você gostar. A sua escolha vai direto para a conversa.</span>'+
-      (D.data?'<span style="font-size:14px;font-weight:700;padding-top:4px;">Disponibilidade para '+dataBR(D.data)+'</span>':'')+'</header>';
-    if(cats.length>1){h+='<nav style="display:flex;gap:8px;flex-wrap:wrap;">';[null].concat(cats).forEach(function(c){var on=filtro===c;h+='<button data-cat="'+esc(c==null?'':c)+'" style="cursor:pointer;min-height:44px;padding:0 16px;border:2px solid #201e1d;background:'+(on?'#201e1d':'transparent')+';color:'+(on?'#fff':'#201e1d')+';font-size:14px;font-weight:700;text-align:left;">'+esc(c==null?'Todas':c)+'</button>';});h+='</nav>';}
-    h+='<section style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:16px;">';
-    if(!lista.length)h+='<p style="margin:0;font-size:15px;">Nenhuma opção nesta categoria.</p>';
+    var h='<div class="info"><strong>'+esc(filtro||'Todas as opções')+'</strong><span>'+lista.length+(lista.length===1?' opção':' opções')+'</span></div><section class="grade">';
+    if(!lista.length)h+='<p class="vazio">Nenhuma opção nesta categoria.</p>';
     lista.forEach(function(k){
-      h+='<article style="display:flex;flex-direction:column;background:#fff;border:2px solid '+(k.escolhido?'#ec3013':'#201e1d')+';">'+
-        (k.foto?'<img src="'+esc(k.foto)+'" alt="'+esc(k.nome)+'" loading="lazy" style="display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-bottom:2px solid #201e1d;">':'')+
-        '<div style="display:flex;flex-direction:column;gap:10px;padding:16px;flex:1;">'+
-        (k.categoria?'<span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#b8250f;">'+esc(k.categoria)+'</span>':'')+
-        '<h2 style="margin:0;font-size:20px;font-weight:800;">'+esc(k.nome)+'</h2>'+
-        (k.escolhido?'<span style="font-size:13px;font-weight:700;color:#b8250f;">Sua escolha</span>':'')+
-        (k.descricao?'<p style="margin:0;font-size:14px;line-height:1.5;color:#4a4644;">'+esc(k.descricao)+'</p>':'')+
-        '<div style="display:flex;flex-direction:column;margin-top:auto;padding-top:6px;">';
+      h+='<article class="kit'+(k.escolhido?' escolhido':'')+'">'+
+        '<div class="foto">'+(k.foto?'<img src="'+esc(k.foto)+'" alt="'+esc(k.nome)+'" loading="lazy">':'')+
+          (k.categoria&&!filtro?'<span class="selo">'+esc(k.categoria)+'</span>':'')+
+          (k.escolhido?'<span class="selo escolha">Sua escolha</span>':'')+'</div>'+
+        (k.categoria&&filtro?'<span class="cat">'+esc(k.categoria)+'</span>':'')+
+        '<h2>'+esc(k.nome)+'</h2>'+
+        (k.descricao?'<p class="desc">'+esc(k.descricao)+'</p>':'')+
+        '<div class="opcoes">';
       k.opcoes.forEach(function(o){
-        h+='<div style="display:flex;flex-direction:column;gap:8px;padding:12px 0;border-top:2px solid #e3e1e0;">'+
-          '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;"><span style="font-size:14px;font-weight:600;">'+esc(o.nome)+'</span><strong style="font-size:20px;font-weight:800;">'+brl(o.preco)+'</strong></div>'+
-          (o.livre?'<button data-kit="'+esc(k.id)+'" data-mod="'+esc(o.modalidade)+'" style="cursor:pointer;min-height:48px;padding:0 16px;border:0;background:#ec3013;color:#fff;font-size:16px;font-weight:700;text-align:left;">Quero esta</button>'
-                  :'<span style="display:flex;align-items:center;min-height:48px;padding:0 16px;background:#e3e1e0;color:#4a4644;font-size:15px;font-weight:700;">Indisponível nessa data</span>')+
-          '</div>';
+        h+='<div class="op"><div class="op-l"><span>'+esc(o.nome)+'</span><strong>'+brl(o.preco)+'</strong></div>'+
+          (o.livre?'<button class="quero" data-kit="'+esc(k.id)+'" data-mod="'+esc(o.modalidade)+'">Quero esta</button>'
+                  :'<span class="indisp">Indisponível nessa data</span>')+'</div>';
       });
-      h+='</div></div></article>';
+      h+='</div></article>';
     });
-    h+='</section>';
-    app.innerHTML=h;
+    app.innerHTML=h+'</section>';
   }
-  app.addEventListener('click',function(e){
+  menu.addEventListener('click',function(e){
     var b=e.target.closest('button');if(!b)return;
-    if(b.hasAttribute('data-cat')){var v=b.getAttribute('data-cat');filtro=v||null;render();window.scrollTo(0,0);return;}
-    if(b.hasAttribute('data-kit')){
-      if(enviando)return;enviando=true;b.textContent='Enviando…';
-      var id=b.getAttribute('data-kit'),mod=b.getAttribute('data-mod');
-      post({acao:'escolher',produto_id:id,modalidade:mod}).then(function(r){
-        enviando=false;
-        if(r.erro){b.textContent='Quero esta';mostrarAviso(esc(r.erro));return;}
-        D.kits.forEach(function(k){k.escolhido=k.id===id;});render();
-        var k=D.kits.filter(function(x){return x.id===id;})[0];
-        mostrarAviso('<strong>Pronto! Enviamos sua escolha: '+esc(k?k.nome:'')+'.</strong><br>Pode voltar para o WhatsApp, a gente continua por lá.');
-      }).catch(function(){enviando=false;b.textContent='Quero esta';mostrarAviso('Não conseguimos enviar agora. Tente de novo em instantes.');});
-    }
+    filtro=b.getAttribute('data-cat')||null;render();window.scrollTo(0,0);
+  });
+  app.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-kit]');if(!b||enviando)return;
+    enviando=true;b.textContent='Enviando…';
+    var id=b.getAttribute('data-kit'),mod=b.getAttribute('data-mod');
+    post({acao:'escolher',produto_id:id,modalidade:mod}).then(function(r){
+      enviando=false;
+      if(r.erro){b.textContent='Quero esta';mostrarAviso(esc(r.erro));return;}
+      D.kits.forEach(function(k){k.escolhido=k.id===id;});render();
+      var k=D.kits.filter(function(x){return x.id===id;})[0];
+      mostrarAviso('<strong>Pronto! Enviamos sua escolha: '+esc(k?k.nome:'')+'.</strong><br>Pode voltar para o WhatsApp, a gente continua por lá.');
+    }).catch(function(){enviando=false;b.textContent='Quero esta';mostrarAviso('Não conseguimos enviar agora. Tente de novo em instantes.');});
   });
   if(T.length<20||!C.url){falha('Este link está incompleto.');return;}
   post({acao:'ver'}).then(function(r){
     if(r.erro){falha(r.erro+'.');return;}
     D=r;document.title='Catálogo · '+r.empresa;
     if(CAT){var lc=CAT.toLowerCase();D.kits.forEach(function(k){if(k.categoria&&k.categoria.toLowerCase()===lc)filtro=k.categoria;});}
-    render();
+    topo();render();
   }).catch(function(){falha('Não conseguimos abrir o catálogo agora.');});
 })();
 </script>

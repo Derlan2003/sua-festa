@@ -3,5 +3,6 @@
 // NUNCA coloque aqui a chave service_role.
 window.SF_CONFIG = {
   url: 'https://SEU-PROJETO.supabase.co',
-  anonKey: 'COLE-AQUI-A-CHAVE-ANON-PUBLIC'
+  anonKey: 'COLE-AQUI-A-CHAVE-ANON-PUBLIC',
+  metaAppId: '' // opcional: ID do app da Meta para Messenger/Instagram (backend/CANAIS.md)
 };

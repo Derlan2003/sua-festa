@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel da Semana · Clientello</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+html,body{margin:0} [hidden]{display:none!important}
+
+/* Layout: painel de comando — alertas no topo, matriz 2x2 de prioridade, faixa da semana e checklist de contas de anúncio */
+:root{
+  --bg:#F2F4F3; --surface:#FFFFFF; --line:#D9E0DD; --fg:#14201C; --muted:#5D6B66;
+  --accent:#1F6F5C; --accent-soft:#E1EFEA;
+  --q1:#C2412D; --q1-soft:#FBE7E2; --q2:#1F6F5C; --q2-soft:#E1EFEA;
+  --q3:#B07A12; --q3-soft:#FAF0D9; --q4:#6B7280; --q4-soft:#ECEEF0;
+  --font-display:"Bricolage Grotesque", "Trebuchet MS", sans-serif;
+  --font-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1614; --surface:#17211E; --line:#2A3632; --fg:#E7EEEB; --muted:#93A39D;
+  --accent:#4FB89A; --accent-soft:#1B3029;
+  --q1:#F07A63; --q1-soft:#3A1F1A; --q2:#4FB89A; --q2-soft:#1B3029;
+  --q3:#E2B04A; --q3-soft:#352A14; --q4:#9CA3AF; --q4-soft:#24292E; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0F1614; --surface:#17211E; --line:#2A3632; --fg:#E7EEEB; --muted:#93A39D;
+  --accent:#4FB89A; --accent-soft:#1B3029;
+  --q1:#F07A63; --q1-soft:#3A1F1A; --q2:#4FB89A; --q2-soft:#1B3029;
+  --q3:#E2B04A; --q3-soft:#352A14; --q4:#9CA3AF; --q4-soft:#24292E; color-scheme:dark }
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:24px}
+h1,h2{font-family:var(--font-display);margin:0;text-wrap:balance}
+h1{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:18px;font-weight:600}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px}
+.status{color:var(--muted);font-size:13px}
+
+/* alertas */
+.alerts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.alert{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:6px;min-width:0}
+.alert b{font-family:var(--font-display);font-size:30px;line-height:1}
+.alert.bad b{color:var(--q1)} .alert.warn b{color:var(--q3)} .alert.ok b{color:var(--accent)}
+.alert ul{margin:0;padding:0;list-style:none;font-size:13px;color:var(--muted);display:grid;gap:2px}
+.alert li{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* formulário */
+form.add{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr auto;gap:10px;align-items:end}
+label{display:grid;gap:4px;font-size:12px;color:var(--muted);font-weight:600;min-width:0}
+input,select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-width:0;width:100%;box-sizing:border-box}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;border:1px solid transparent;padding:9px 14px}
+.primary{background:var(--accent);color:var(--surface)}
+.ghost{background:transparent;border-color:var(--line);color:var(--fg);padding:5px 10px;font-size:13px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* matriz */
+.matrix{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.quad{border-radius:10px;padding:14px;display:grid;gap:10px;align-content:start;min-height:150px;border:1px solid var(--line);background:var(--surface);border-top:4px solid var(--c)}
+.quad header{align-items:baseline}
+.quad .hint{font-size:12px;color:var(--muted)}
+.q1{--c:var(--q1);--s:var(--q1-soft)} .q2{--c:var(--q2);--s:var(--q2-soft)} .q3{--c:var(--q3);--s:var(--q3-soft)} .q4{--c:var(--q4);--s:var(--q4-soft)}
+.task{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;background:var(--s)}
+.task input[type=checkbox]{width:18px;height:18px;accent-color:var(--c)}
+.task .t{min-width:0;overflow-wrap:anywhere}
+.task .meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+.task.done .t{text-decoration:line-through;color:var(--muted)}
+.pill{font-family:var(--font-mono);font-size:11px;padding:2px 6px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.pill.late{color:var(--q1);border-color:var(--q1)} .pill.today{color:var(--q3);border-color:var(--q3)}
+.x{background:none;border:0;color:var(--muted);padding:4px 6px;font-size:16px;line-height:1}
+.empty{font-size:13px;color:var(--muted);padding:6px 2px}
+
+/* semana */
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;overflow-x:auto}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;gap:6px;align-content:start;min-width:0;min-height:110px}
+.day.is-today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.day .dn{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:600}
+.chip{font-size:12px;padding:4px 6px;border-radius:6px;background:var(--s);border-left:3px solid var(--c);overflow-wrap:anywhere}
+.chip.done{opacity:.5;text-decoration:line-through}
+
+/* contas de anúncio */
+.ads{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px}
+.client{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.client:first-of-type{border-top:0}
+.ok-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;background:var(--q1)}
+.ok-dot.on{background:var(--accent)}
+form.addc{display:grid;grid-template-columns:1.5fr 1fr auto;gap:10px;align-items:end}
+
+section{display:grid;gap:12px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+
+@media (max-width:860px){
+  form.add{grid-template-columns:1fr 1fr}
+  form.add label:first-child{grid-column:1/-1}
+  .week{grid-template-columns:repeat(7,minmax(130px,1fr))}
+}
+@media (max-width:560px){
+  .alerts,.matrix{grid-template-columns:1fr}
+  form.addc{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div class="wrap" id="gate" style="min-height:60vh;align-content:center"><div class="status" id="gateMsg">Verificando acesso…</div></div>
+<div class="wrap" id="app" hidden>
+  <header>
+    <div>
+      <div class="eyebrow" id="hoje">Hoje</div>
+      <h1>Painel da Semana</h1>
+    </div>
+    <div class="status" id="status">Carregando…</div>
+  </header>
+
+  <div class="alerts" aria-live="polite">
+    <div class="alert bad"><span class="eyebrow">Atrasadas</span><b id="nLate">0</b><ul id="lLate"></ul></div>
+    <div class="alert warn"><span class="eyebrow">Vencem hoje ou amanhã</span><b id="nSoon">0</b><ul id="lSoon"></ul></div>
+    <div class="alert ok"><span class="eyebrow">Contas de anúncio revisadas hoje</span><b id="nAds">0/0</b><ul id="lAds"></ul></div>
+  </div>
+
+  <form class="add" id="fAdd">
+    <label>O que precisa ser feito<input id="iTitulo" required placeholder="Ex.: Entregar criativos do cliente X"></label>
+    <label>Prioridade
+      <select id="iQuad">
+        <option value="q1">Urgente e importante</option>
+        <option value="q2" selected>Importante, não urgente</option>
+        <option value="q3">Urgente, não importante</option>
+        <option value="q4">Nem urgente nem importante</option>
+      </select></label>
+    <label>Prazo<input id="iPrazo" type="date"></label>
+    <label>Projeto / cliente<input id="iProj" placeholder="Opcional"></label>
+    <button class="primary" type="submit">Adicionar</button>
+  </form>
+
+  <section>
+    <div class="sec-head"><h2>Prioridades</h2><span class="status">Matriz de Eisenhower</span></div>
+    <div class="matrix">
+      <div class="quad q1"><header><h2>Fazer agora</h2><span class="hint">urgente + importante</span></header><div id="q1"></div></div>
+      <div class="quad q2"><header><h2>Agendar</h2><span class="hint">importante, sem pressa</span></header><div id="q2"></div></div>
+      <div class="quad q3"><header><h2>Delegar ou encaixar</h2><span class="hint">urgente, pouco impacto</span></header><div id="q3"></div></div>
+      <div class="quad q4"><header><h2>Cortar</h2><span class="hint">nem urgente nem importante</span></header><div id="q4"></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2 id="weekTitle">Esta semana</h2>
+      <div style="display:flex;gap:6px"><button class="ghost" id="prevW" type="button">← Semana anterior</button><button class="ghost" id="thisW" type="button">Hoje</button><button class="ghost" id="nextW" type="button">Próxima →</button></div></div>
+    <div class="week" id="week"></div>
+  </section>
+
+  <section class="ads">
+    <div class="sec-head"><h2>Contas de anúncio dos clientes</h2><span class="status">Marque quando revisar. Zera todo dia.</span></div>
+    <div id="clients"></div>
+    <form class="addc" id="fCli">
+      <label>Cliente<input id="iCli" required placeholder="Nome do cliente"></label>
+      <label>ID da conta (act_…)<input id="iAct" placeholder="Opcional"></label>
+      <button class="ghost" type="submit" style="padding:9px 14px">Adicionar cliente</button>
+    </form>
+  </section>
+</div>
+<script>
+(function(){
+  /* =========================================================
+     CONFIGURAÇÃO — o Claude Code deve ajustar aqui.
+     API_BASE vazio  -> salva no navegador (localStorage), modo demo.
+     API_BASE "/api/admin/agenda" -> usa a API do Clientello:
+       GET    {API_BASE}/tarefas            -> [{id,titulo,quadrante,prazo,projeto,feito,criadoEm}]
+       POST   {API_BASE}/tarefas            body: tarefa sem id -> tarefa criada
+       PATCH  {API_BASE}/tarefas/:id        body: campos parciais
+       DELETE {API_BASE}/tarefas/:id
+       GET/POST/PATCH/DELETE {API_BASE}/clientes[/:id] -> {id,nome,contaId,ultimaRevisao,revisaoAnterior}
+     ========================================================= */
+  const CONFIG = window.AGENDA_CONFIG || { API_BASE: "", HEADERS: {} };
+  // Clientello: só a conta principal entra. Usa o mesmo login do CRM (mesmo domínio).
+  const SF = window.SF_CONFIG || {};
+  const sb = (window.supabase && SF.url) ? window.supabase.createClient(SF.url, SF.anonKey) : null;
+  let store = null;
+
+  function sbStore(){
+    const T = { tarefas: "agenda_tarefas", clientes: "agenda_clientes_trafego" };
+    const toDb = (c,d) => { const o={}; if(c==="tarefas"){ if("titulo" in d)o.titulo=d.titulo; if("quadrante" in d)o.quadrante=d.quadrante; if("prazo" in d)o.prazo=d.prazo||null; if("projeto" in d)o.projeto=d.projeto||""; if("feito" in d)o.feito=!!d.feito; if(d.criadoEm)o.criado_em=d.criadoEm; }
+      else { if("nome" in d)o.nome=d.nome; if("contaId" in d)o.conta_id=d.contaId||""; if("ultimaRevisao" in d)o.ultima_revisao=d.ultimaRevisao||null; if("revisaoAnterior" in d)o.revisao_anterior=d.revisaoAnterior||null; } return o; };
+    const fromDb = (c,r) => c==="tarefas" ? {id:r.id,titulo:r.titulo,quadrante:r.quadrante,prazo:r.prazo||"",projeto:r.projeto||"",feito:!!r.feito,criadoEm:r.criado_em}
+      : {id:r.id,nome:r.nome,contaId:r.conta_id||"",ultimaRevisao:r.ultima_revisao||"",revisaoAnterior:r.revisao_anterior||""};
+    const ok = r => { if(r.error) throw r.error; return r.data; };
+    return {
+      list: async c => (ok(await sb.from(T[c]).select("*").order("criado_em"))||[]).map(r=>fromDb(c,r)),
+      add: async (c,d) => fromDb(c, ok(await sb.from(T[c]).insert(toDb(c,d)).select().single())),
+      update: async (c,id,d) => { ok(await sb.from(T[c]).update(toDb(c,d)).eq("id",id)); },
+      remove: async (c,id) => { ok(await sb.from(T[c]).delete().eq("id",id)); },
+    };
+  }
+  async function liberar(){
+    const msg = t => { document.getElementById("gateMsg").textContent = t; };
+    if(!sb){ msg("Não foi possível carregar. Recarregue a página."); return false; }
+    const { data } = await sb.auth.getSession();
+    if(!data || !data.session){ msg("Entre no Clientello com a conta principal para abrir a agenda."); setTimeout(()=>location.replace("./"),1800); return false; }
+    const plat = await sb.rpc("eh_plataforma");
+    if(plat.error || plat.data !== true){ msg("Acesso restrito à conta principal do Clientello."); setTimeout(()=>location.replace("./"),1800); return false; }
+    store = sbStore(); CONFIG.API_BASE = "supabase";
+    document.getElementById("gate").remove(); document.getElementById("app").hidden = false;
+    return true;
+  }
+
+  function apiStore(cfg){
+    const req = async (method, path, body) => {
+      const r = await fetch(cfg.API_BASE + path, { method, credentials: "include",
+        headers: Object.assign({"Content-Type":"application/json"}, cfg.HEADERS||{}),
+        body: body ? JSON.stringify(body) : undefined });
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      return r.status === 204 ? null : r.json();
+    };
+    return {
+      list: col => req("GET","/"+col),
+      add: (col,data) => req("POST","/"+col,data),
+      update: (col,id,data) => req("PATCH","/"+col+"/"+encodeURIComponent(id),data),
+      remove: (col,id) => req("DELETE","/"+col+"/"+encodeURIComponent(id)),
+    };
+  }
+  function localStore(){
+    const key = c => "agenda_"+c;
+    const read = c => { try{ return JSON.parse(localStorage.getItem(key(c))||"[]"); }catch(e){ return []; } };
+    const save = (c,a) => { try{ localStorage.setItem(key(c),JSON.stringify(a)); }catch(e){} };
+    const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+    return {
+      list: async c => read(c),
+      add: async (c,d) => { const a=read(c); const it={id:uid(),...d}; a.push(it); save(c,a); return it; },
+      update: async (c,id,d) => { const a=read(c).map(x=>x.id===id?{...x,...d}:x); save(c,a); },
+      remove: async (c,id) => { save(c,read(c).filter(x=>x.id!==id)); },
+    };
+  }
+
+  const $ = id => document.getElementById(id);
+  const DIAS = ["dom","seg","ter","qua","qui","sex","sáb"];
+  const iso = d => { const z = new Date(d.getTime() - d.getTimezoneOffset()*60000); return z.toISOString().slice(0,10); };
+  const today = () => iso(new Date());
+  const addDays = (s,n) => { const d = new Date(s+"T12:00:00"); d.setDate(d.getDate()+n); return iso(d); };
+  const fmt = s => new Date(s+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});
+  let tasks = [], clients = [], weekOffset = 0;
+
+  function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+  function setHoje(){ $("hoje").dataset.d=today(); $("hoje").textContent=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"}); }
+
+  async function reload(){
+    try{
+      [tasks, clients] = await Promise.all([store.list("tarefas"), store.list("clientes")]);
+      $("status").textContent = CONFIG.API_BASE ? "Sincronizado" : "Modo local (salvo neste navegador)";
+    }catch(e){ $("status").textContent = "Não foi possível carregar. Recarregue a página."; }
+    render();
+  }
+  async function act(p){ try{ await p; }catch(e){ $("status").textContent="Não salvou. Tente de novo."; } await reload(); }
+
+  function fillList(id, arr){ const u=$(id); u.replaceChildren(); arr.slice(0,4).forEach(s=>u.append(el("li",null,s))); if(arr.length>4) u.append(el("li",null,"+"+(arr.length-4)+" mais")); }
+
+  function taskRow(x,t){
+    const r = el("div","task"+(x.feito?" done":""));
+    const cb = el("input"); cb.type="checkbox"; cb.checked=!!x.feito; cb.id="cb-"+x.id; cb.setAttribute("aria-label","Concluir "+x.titulo);
+    cb.onchange = () => act(store.update("tarefas", x.id, {feito: cb.checked}));
+    const mid = el("div"); mid.append(el("div","t",x.titulo));
+    const meta = el("div","meta");
+    if(x.prazo){ const late=!x.feito&&x.prazo<t, td=!x.feito&&x.prazo===t; meta.append(el("span","pill"+(late?" late":td?" today":""),(late?"atrasada · ":td?"hoje · ":"")+fmt(x.prazo))); }
+    if(x.projeto) meta.append(el("span",null,x.projeto));
+    if(meta.childNodes.length) mid.append(meta);
+    const del = el("button","x","×"); del.type="button"; del.setAttribute("aria-label","Apagar "+x.titulo);
+    del.onclick = () => act(store.remove("tarefas", x.id));
+    r.append(cb, mid, del); return r;
+  }
+
+  function render(){
+    const t=today(), tm=addDays(t,1);
+    const open=tasks.filter(x=>!x.feito);
+    const late=open.filter(x=>x.prazo&&x.prazo<t);
+    const soon=open.filter(x=>x.prazo===t||x.prazo===tm);
+    $("nLate").textContent=late.length; fillList("lLate", late.map(x=>x.titulo));
+    $("nSoon").textContent=soon.length; fillList("lSoon", soon.map(x=>(x.prazo===t?"hoje · ":"amanhã · ")+x.titulo));
+    const pend=clients.filter(c=>c.ultimaRevisao!==t);
+    $("nAds").textContent=(clients.length-pend.length)+"/"+clients.length;
+    fillList("lAds", clients.length ? pend.map(c=>"falta: "+c.nome) : ["Adicione seus clientes de tráfego abaixo"]);
+
+    ["q1","q2","q3","q4"].forEach(q=>{
+      const box=$(q); box.replaceChildren();
+      const list=tasks.filter(x=>x.quadrante===q).sort((a,b)=>(a.feito-b.feito)||(a.prazo||"9").localeCompare(b.prazo||"9"));
+      if(!list.length){ box.append(el("div","empty","Nada aqui.")); return; }
+      const g=el("div"); g.style.cssText="display:grid;gap:6px"; list.forEach(x=>g.append(taskRow(x,t))); box.append(g);
+    });
+
+    const dow=(new Date(t+"T12:00:00").getDay()+6)%7;
+    const mon=addDays(t,-dow+weekOffset*7);
+    $("weekTitle").textContent = weekOffset===0 ? "Esta semana" : "Semana de "+fmt(mon)+" a "+fmt(addDays(mon,6));
+    const wk=$("week"); wk.replaceChildren();
+    for(let i=0;i<7;i++){
+      const d=addDays(mon,i), dd=new Date(d+"T12:00:00");
+      const col=el("div","day"+(d===t?" is-today":""));
+      const h=el("div","dn"); h.append(el("span",null,DIAS[dd.getDay()]), el("span","mono",fmt(d))); col.append(h);
+      tasks.filter(x=>x.prazo===d).forEach(x=>col.append(el("div","chip "+x.quadrante+(x.feito?" done":""),x.titulo)));
+      wk.append(col);
+    }
+
+    const cl=$("clients"); cl.replaceChildren();
+    if(!clients.length) cl.append(el("div","empty","Nenhum cliente ainda. Adicione abaixo."));
+    clients.slice().sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(c=>{
+      const done=c.ultimaRevisao===t;
+      const row=el("div","client");
+      const name=el("div"); name.append(el("span","ok-dot"+(done?" on":"")), document.createTextNode(c.nome));
+      if(c.contaId){ const p=el("span","pill",c.contaId); p.style.marginLeft="8px"; name.append(p); }
+      name.append(el("div","status", c.ultimaRevisao ? "última revisão "+fmt(c.ultimaRevisao) : "nunca revisada"));
+      const b=el("button","ghost", done?"Revisada ✓":"Marcar revisada"); b.type="button";
+      b.onclick=()=>act(store.update("clientes", c.id, done ? {ultimaRevisao:c.revisaoAnterior||"", revisaoAnterior:""} : {ultimaRevisao:t, revisaoAnterior:c.ultimaRevisao||""}));
+      const x=el("button","x","×"); x.type="button"; x.setAttribute("aria-label","Remover "+c.nome);
+      x.onclick=()=>{ if(x.dataset.confirm){ act(store.remove("clientes", c.id)); } else { x.dataset.confirm="1"; x.textContent="remover?"; setTimeout(()=>{x.textContent="×"; delete x.dataset.confirm;},3000); } };
+      row.append(name,b,x); cl.append(row);
+    });
+  }
+
+  $("fAdd").addEventListener("submit", e=>{
+    e.preventDefault();
+    const titulo=$("iTitulo").value.trim(); if(!titulo) return;
+    act(store.add("tarefas",{titulo, quadrante:$("iQuad").value, prazo:$("iPrazo").value||"", projeto:$("iProj").value.trim(), feito:false, criadoEm:new Date().toISOString()}));
+    $("iTitulo").value=""; $("iProj").value=""; $("iTitulo").focus();
+  });
+  $("fCli").addEventListener("submit", e=>{
+    e.preventDefault();
+    const nome=$("iCli").value.trim(); if(!nome) return;
+    act(store.add("clientes",{nome, contaId:$("iAct").value.trim(), ultimaRevisao:"", revisaoAnterior:""}));
+    $("iCli").value=""; $("iAct").value="";
+  });
+  $("prevW").onclick=()=>{weekOffset--;render()}; $("nextW").onclick=()=>{weekOffset++;render()}; $("thisW").onclick=()=>{weekOffset=0;render()};
+
+  liberar().then(okA=>{ if(!okA) return; setHoje(); render(); reload(); });
+  setInterval(()=>{ if(store && $("hoje").dataset.d!==today()){ setHoje(); render(); } }, 60000);
+})();
+</script>
+</body>
+</html>

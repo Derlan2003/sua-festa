@@ -103,6 +103,7 @@ section{display:grid;gap:12px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<script>(function(){var t=new URLSearchParams(location.search).get("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);})();</script>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -199,9 +200,9 @@ section{display:grid;gap:12px}
     const msg = t => { document.getElementById("gateMsg").textContent = t; };
     if(!sb){ msg("Não foi possível carregar. Recarregue a página."); return false; }
     const { data } = await sb.auth.getSession();
-    if(!data || !data.session){ msg("Entre no Clientello com a conta principal para abrir a agenda."); setTimeout(()=>location.replace("./"),1800); return false; }
+    if(!data || !data.session){ msg("Entre no Clientello com a conta principal para abrir a agenda."); setTimeout(()=>(window.top||window).location.replace("./"),1800); return false; }
     const plat = await sb.rpc("eh_plataforma");
-    if(plat.error || plat.data !== true){ msg("Acesso restrito à conta principal do Clientello."); setTimeout(()=>location.replace("./"),1800); return false; }
+    if(plat.error || plat.data !== true){ msg("Acesso restrito à conta principal do Clientello."); setTimeout(()=>(window.top||window).location.replace("./"),1800); return false; }
     store = sbStore(); CONFIG.API_BASE = "supabase";
     document.getElementById("gate").remove(); document.getElementById("app").hidden = false;
     return true;

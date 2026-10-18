@@ -33,7 +33,23 @@
   .hero p{margin:10px auto 0;max-width:520px;font-size:16px;line-height:1.5;color:var(--ink);text-wrap:pretty}
   .chip{white-space:nowrap;display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:8px 16px;border-radius:999px;background:#fff;font-size:14px;font-weight:800;color:var(--navy)}
   .chip i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--green)}
-  main{max-width:1120px;margin:0 auto;padding:28px 20px 140px}
+  main{max-width:1120px;margin:0 auto;padding:28px 20px 32px}
+  .lgpd{max-width:640px;margin:0 auto;padding:8px 20px 140px;font-size:13px;line-height:1.55;color:var(--muted)}
+  .lgpd-box{border-radius:16px;background:var(--soft)}
+  .lgpd-btn{cursor:pointer;width:100%;min-height:48px;display:flex;align-items:center;gap:10px;padding:0 16px;border:0;border-radius:16px;background:transparent;color:var(--ink);font-size:14px;font-weight:700;text-align:left}
+  .lgpd-btn:hover{background:#eaf0f7}
+  .lgpd-btn svg{flex:none;color:var(--teal)}
+  .lgpd-btn .seta{margin-left:auto;width:24px;height:24px}
+  .lgpd.aberto .lgpd-btn .seta{transform:rotate(180deg)}
+  .lgpd .gaveta-in>div{display:flex;flex-direction:column;gap:10px;padding:0 16px 16px;opacity:0;transition:opacity .35s ease}
+  .lgpd.aberto .gaveta{grid-template-rows:1fr}
+  .lgpd.aberto .gaveta-in>div{opacity:1;transition-delay:.08s}
+  .lgpd ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+  .lgpd li{display:flex;gap:8px;color:var(--ink);text-wrap:pretty}
+  .lgpd li:before{content:"";flex:none;width:6px;height:6px;margin-top:7px;border-radius:50%;background:var(--teal)}
+  .lgpd-links{display:flex;flex-wrap:wrap;gap:6px 16px}
+  .lgpd a{color:var(--navy);font-weight:800}
+  .lgpd-rod{margin:12px 0 0;text-align:center;font-size:12px}
   .info{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:18px;font-size:15px;color:var(--muted)}
   .info strong{white-space:nowrap;color:var(--navy);font-size:20px;font-weight:900}
   .grade{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 24px;align-items:start}
@@ -65,7 +81,7 @@
   .como{display:flex;gap:10px;align-items:flex-start;margin:0;font-size:14px;line-height:1.45;color:var(--ink);text-wrap:pretty}
   .como svg{flex:none;margin-top:1px;color:var(--teal)}
   .como strong{color:var(--navy)}
-  @media (prefers-reduced-motion:reduce){.gaveta,.opcoes,.seta{transition:none}}
+  @media (prefers-reduced-motion:reduce){.gaveta,.opcoes,.seta,.lgpd .gaveta-in>div{transition:none}}
   .op-l{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
   .op-l span{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap}
   .op-l strong{font-size:20px;font-weight:900;color:var(--teal)}
@@ -84,7 +100,7 @@
     .menu{margin:0 auto;max-width:100%}
     .hero{padding:24px 16px}
     .hero h1{font-size:28px}
-    main{padding:20px 16px 140px}
+    main{padding:20px 16px 24px}
     .grade{grid-template-columns:minmax(0,1fr);gap:32px}
   }
 </style>
@@ -102,13 +118,14 @@
   <p>Carregando o catálogo…</p>
 </section>
 <main id="app"></main>
+<footer class="lgpd" id="lgpd"></footer>
 <div id="aviso" role="status"></div>
 <script>
 (function(){
   var C=window.SF_CONFIG||{},API=(C.url||'')+'/functions/v1/catalogo';
   var q=new URLSearchParams(location.search),T=(q.get('t')||'').replace(/[^a-f0-9]/gi,''),CAT=q.get('c')||'';
   var app=document.getElementById('app'),aviso=document.getElementById('aviso'),menu=document.getElementById('menu'),hero=document.getElementById('hero'),marca=document.getElementById('marca');
-  var D=null,filtro=null,enviando=false,abertos={};
+  var D=null,filtro=null,enviando=false,abertos={},vistos={};
   var ICO={
     decoracao_completa:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>',
     pegue_monte:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/></svg>'
@@ -127,6 +144,18 @@
   function topo(){
     var lg=D.logo||LOGOS[String(D.empresa||'').trim().toLowerCase()];
     marca.innerHTML=lg?'<img class="logo" src="'+esc(lg)+'" alt="'+esc(D.empresa)+'">':'<span class="marca">'+esc(D.empresa)+'</span>';
+    var emp=esc(D.empresa||'a empresa');
+    document.getElementById('lgpd').innerHTML='<div class="lgpd-box"><button class="lgpd-btn" id="lgpd-btn" aria-expanded="false">'+
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>'+
+      '<span>Seus dados protegidos · LGPD</span><span class="seta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></button>'+
+      '<div class="gaveta"><div class="gaveta-in"><div><ul>'+
+        '<li><span>Registramos quais opções você abre e escolhe, para '+emp+' atender o seu pedido.</span></li>'+
+        '<li><span>Esses registros ajudam '+emp+' a medir os anúncios dela na Meta. Seu telefone vai criptografado e nenhuma mensagem é compartilhada.</span></li>'+
+        '<li><span>Sem cookies e sem rastreio no seu navegador.</span></li>'+
+        '<li><span>Não quer participar? É só avisar na conversa e paramos em até 2 dias úteis.</span></li>'+
+      '</ul><div class="lgpd-links"><a href="privacidade.html#catalogo-anuncios" target="_blank" rel="noopener">Política de privacidade</a><a href="termos.html" target="_blank" rel="noopener">Termos de uso</a><a href="exclusao-de-dados.html" target="_blank" rel="noopener">Excluir meus dados</a></div></div></div></div></div>'+
+      '<p class="lgpd-rod">Catálogo de '+emp+' · tecnologia Clientello</p>';
+    document.getElementById('lgpd-btn').onclick=function(){var ft=document.getElementById('lgpd'),on=!ft.classList.contains('aberto');ft.classList.toggle('aberto',on);this.setAttribute('aria-expanded',on?'true':'false');};
     hero.innerHTML='<h1>Nossas opções</h1><p>Veja as fotos, toque em <strong>Ver valores</strong> e escolha como prefere a sua decoração. A sua escolha vai direto para a conversa.</p>'+
       (D.data?'<span class="chip"><i></i>Disponibilidade para '+dataBR(D.data)+'</span>':'');
   }
@@ -167,7 +196,7 @@
   app.addEventListener('click',function(e){
     var a=e.target.closest('button[data-abrir]');
     if(a){var id0=a.getAttribute('data-abrir'),art=a.closest('.kit'),on=!art.classList.contains('aberto');
-      art.classList.toggle('aberto',on);a.setAttribute('aria-expanded',on?'true':'false');abertos[id0]=on;return;}
+      art.classList.toggle('aberto',on);a.setAttribute('aria-expanded',on?'true':'false');abertos[id0]=on;if(on&&!vistos[id0]){vistos[id0]=1;post({acao:'ver_kit',produto_id:id0}).catch(function(){});}return;}
     var b=e.target.closest('button[data-kit]');if(!b||enviando)return;
     enviando=true;b.textContent='Enviando…';
     var id=b.getAttribute('data-kit'),mod=b.getAttribute('data-mod');
@@ -180,7 +209,7 @@
     }).catch(function(){enviando=false;b.textContent='Quero esta';mostrarAviso('Não conseguimos enviar agora. Tente de novo em instantes.');});
   });
   if(T.length<20||!C.url){falha('Este link está incompleto.');return;}
-  post({acao:'ver'}).then(function(r){
+  post({acao:'ver',c:CAT}).then(function(r){
     if(r.erro){falha(r.erro+'.');return;}
     D=r;document.title='Catálogo · '+r.empresa;
     if(CAT){var lc=CAT.toLowerCase();D.kits.forEach(function(k){if(k.categoria&&k.categoria.toLowerCase()===lc)filtro=k.categoria;});}

@@ -26,9 +26,12 @@
   @media (max-width:1100px){.esp{display:none}}
   .menu{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 6px;max-width:1100px}
   .menu::-webkit-scrollbar{display:none}
-  .menu button{flex:none;cursor:pointer;min-height:44px;padding:0 18px;border:0;border-radius:999px;background:transparent;color:var(--navy);font-size:15px;font-weight:800;white-space:nowrap}
-  .menu button:hover{background:var(--soft)}
-  .menu button.on{background:var(--navy);color:#fff}
+  .menu button{position:relative;flex:none;cursor:pointer;min-height:44px;padding:0 14px;border:0;background:transparent;color:var(--ink);font-size:15px;font-weight:800;white-space:nowrap;transition:color .2s}
+  .menu button:after{content:"";position:absolute;left:14px;right:14px;bottom:6px;height:3px;border-radius:3px;background:var(--teal);transform:scaleX(0);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+  .menu button:hover{color:var(--navy)}
+  .menu button:hover:after{transform:scaleX(.4)}
+  .menu button.on{color:var(--navy)}
+  .menu button.on:after{transform:scaleX(1)}
   .faixa{display:grid;grid-template-columns:repeat(6,1fr);height:5px}
   .hero{background:var(--soft);padding:36px 20px 32px;text-align:center}
   .hero h1{margin:0;font-size:34px;line-height:1.1;font-weight:900}
@@ -59,6 +62,18 @@
   .kit{display:flex;flex-direction:column;gap:12px}
   .foto{position:relative;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:var(--soft)}
   .foto img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+  .ampliar{position:absolute;inset:0;cursor:zoom-in;border:0;padding:0;background:transparent}
+  .ampliar span{position:absolute;right:12px;bottom:12px;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.92);color:var(--navy);box-shadow:0 2px 10px rgba(34,39,87,.18);opacity:0;transform:scale(.85);transition:opacity .25s,transform .25s}
+  .kit:hover .ampliar span,.ampliar:focus-visible span{opacity:1;transform:none}
+  @media (hover:none){.ampliar span{opacity:1;transform:none}}
+  #zoom{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:64px 20px 24px;background:rgba(13,16,48,.88);opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
+  #zoom.on{opacity:1;visibility:visible;transition:opacity .3s}
+  #zoom figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:12px;max-width:min(960px,100%);max-height:100%;transform:scale(.94);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+  #zoom.on figure{transform:none}
+  #zoom img{display:block;max-width:100%;max-height:calc(100vh - 140px);border-radius:16px;object-fit:contain;background:#fff}
+  #zoom figcaption{color:#fff;font-size:17px;font-weight:900;text-align:center}
+  #zoom-x{position:absolute;top:14px;right:14px;width:48px;height:48px;display:grid;place-items:center;cursor:pointer;border:0;border-radius:50%;background:#fff;color:var(--navy);box-shadow:0 4px 16px rgba(0,0,0,.25)}
+  #zoom-x:hover{background:var(--soft)}
   .kit:hover .foto img{transform:scale(1.03)}
   .selo{white-space:nowrap;position:absolute;top:12px;left:12px;padding:6px 12px;border-radius:999px;background:var(--navy);color:#fff;font-size:12px;font-weight:800}
   .selo.escolha{left:auto;right:12px;background:var(--orange);color:var(--navy)}
@@ -84,7 +99,7 @@
   .como{display:flex;gap:10px;align-items:flex-start;margin:0;font-size:14px;line-height:1.45;color:var(--ink);text-wrap:pretty}
   .como svg{flex:none;margin-top:1px;color:var(--teal)}
   .como strong{color:var(--navy)}
-  @media (prefers-reduced-motion:reduce){.gaveta,.opcoes,.seta,.lgpd .gaveta-in>div{transition:none}}
+  @media (prefers-reduced-motion:reduce){.gaveta,.opcoes,.seta,.lgpd .gaveta-in>div,#zoom,#zoom figure,.menu button:after{transition:none}}
   .op-l{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
   .op-l span{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap}
   .op-l strong{font-size:20px;font-weight:900;color:var(--teal)}
@@ -127,6 +142,7 @@
 <main id="app"></main>
 <footer class="lgpd" id="lgpd"></footer>
 <div id="aviso" role="status"></div>
+<div id="zoom" role="dialog" aria-modal="true" aria-label="Foto ampliada" aria-hidden="true"><button id="zoom-x" aria-label="Fechar foto"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><figure><img id="zoom-img" alt=""><figcaption id="zoom-cap"></figcaption></figure></div>
 <script>
 (function(){
   var C=window.SF_CONFIG||{},API=(C.url||'')+'/functions/v1/catalogo';
@@ -176,7 +192,7 @@
     lista.forEach(function(k){
       var aberto=abertos[k.id]!=null?abertos[k.id]:!!k.escolhido,min=Math.min.apply(null,k.opcoes.map(function(o){return Number(o.preco)||0;}));
       h+='<article class="kit'+(k.escolhido?' escolhido':'')+(aberto?' aberto':'')+'">'+
-        '<div class="foto">'+(k.foto?'<img src="'+esc(k.foto)+'" alt="'+esc(k.nome)+'" loading="lazy">':'')+
+        '<div class="foto">'+(k.foto?'<img src="'+esc(k.foto)+'" alt="'+esc(k.nome)+'" loading="lazy"><button class="ampliar" data-zoom="'+esc(k.foto)+'" data-nome="'+esc(k.nome)+'" aria-label="Ampliar foto de '+esc(k.nome)+'"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></span></button>':'')+
           (k.categoria&&!filtro?'<span class="selo">'+esc(k.categoria)+'</span>':'')+
           (k.escolhido?'<span class="selo escolha">Sua escolha</span>':'')+'</div>'+
         (k.categoria&&filtro?'<span class="cat">'+esc(k.categoria)+'</span>':'')+
@@ -200,7 +216,14 @@
     var b=e.target.closest('button');if(!b)return;
     filtro=b.getAttribute('data-cat')||null;render();window.scrollTo(0,0);
   });
+  var zoom=document.getElementById('zoom'),zImg=document.getElementById('zoom-img'),zCap=document.getElementById('zoom-cap'),zVolta=null;
+  function abrirZoom(src,nome,de){zImg.src=src;zImg.alt=nome;zCap.textContent=nome;zVolta=de;zoom.classList.add('on');zoom.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';document.getElementById('zoom-x').focus();}
+  function fecharZoom(){if(!zoom.classList.contains('on'))return;zoom.classList.remove('on');zoom.setAttribute('aria-hidden','true');document.body.style.overflow='';if(zVolta)zVolta.focus();}
+  zoom.addEventListener('click',function(e){if(e.target===zoom||e.target.closest('#zoom-x'))fecharZoom();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')fecharZoom();});
   app.addEventListener('click',function(e){
+    var z=e.target.closest('button[data-zoom]');
+    if(z){abrirZoom(z.getAttribute('data-zoom'),z.getAttribute('data-nome'),z);return;}
     var a=e.target.closest('button[data-abrir]');
     if(a){var id0=a.getAttribute('data-abrir'),art=a.closest('.kit'),on=!art.classList.contains('aberto');
       art.classList.toggle('aberto',on);a.setAttribute('aria-expanded',on?'true':'false');abertos[id0]=on;if(on&&!vistos[id0]){vistos[id0]=1;post({acao:'ver_kit',produto_id:id0}).catch(function(){});}return;}

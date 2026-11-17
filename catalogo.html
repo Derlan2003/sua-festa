@@ -6,6 +6,9 @@
 <title>Catálogo</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#222757">
+<link rel="icon" type="image/png" sizes="32x32" href="/icone-sua-festa-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icone-sua-festa-192.png">
+<link rel="apple-touch-icon" href="/icone-sua-festa-180.png">
 <meta property="og:title" content="Veja as opções do catálogo">
 <meta property="og:description" content="Toque em “Quero esta” na opção que você gostar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,8 +22,17 @@
   button{font:inherit}
   button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
   .topo{position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 1px 0 var(--line)}
-  .topo-in{display:grid;grid-template-columns:minmax(120px,1fr) auto minmax(120px,1fr);align-items:center;gap:16px;padding:10px 32px}
-  #marca{justify-self:start}
+  .topo-in{display:flex;justify-content:center;align-items:center;padding:10px 32px}
+  .filtros[hidden]{display:none}
+  .filtros{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:1100px;margin:0 auto;padding:22px 32px 4px}
+  .hero-filtros{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:16px 32px;margin-top:20px;text-align:left}
+  .hero-filtros .quando{margin-top:0}
+  .ordem{display:flex;flex-direction:column;gap:8px}
+  .ordem-t{font-size:14px;font-weight:800;color:var(--navy)}
+  .ordem-b{display:flex;flex-wrap:wrap;gap:8px}
+  .ordem button{cursor:pointer;min-height:48px;padding:0 18px;border:2px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);font-size:15px;font-weight:800;white-space:nowrap;transition:border-color .2s,background .2s,color .2s}
+  .ordem button:hover{border-color:var(--teal);color:var(--navy)}
+  .ordem button.on{border-color:var(--navy);background:var(--navy);color:#fff}
   .logo{height:64px;width:auto;display:block;flex:none}
   .marca{font-size:22px;font-weight:900}
   @media (max-width:1100px){.esp{display:none}}
@@ -142,15 +154,18 @@
   .indisp{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 16px;border-radius:999px;background:#e6e7ee;color:var(--muted);font-size:15px;font-weight:800}
   .vazio{grid-column:1/-1;margin:0;padding:40px 0;font-size:16px;color:var(--muted);text-align:center}
   #aviso{position:fixed;left:12px;right:12px;bottom:12px;display:none;max-width:560px;margin:0 auto;background:var(--navy);color:#fff;padding:16px 18px;border-radius:16px;font-size:15px;line-height:1.45;box-shadow:0 10px 30px rgba(34,39,87,.3);border-left:6px solid var(--green)}
-  @media (max-width:1100px){.topo-in{grid-template-columns:auto minmax(0,1fr);padding:10px 20px}.menu{justify-content:flex-end}main{padding:28px 20px 32px}}
+  @media (max-width:1100px){.topo-in{padding:10px 20px}.filtros{padding:20px 20px 4px}main{padding:28px 20px 32px}}
   @media (max-width:1060px) and (min-width:901px){.abrir{padding:0 12px;gap:8px}.abrir small i{display:none}}
   @media (max-width:900px){.grade{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media (max-width:640px){
-    .topo-in{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:10px 12px 8px}
-    #marca{align-self:center}
+    .topo-in{padding:8px 12px}
     .logo{height:52px;margin:0 auto}
     .marca{text-align:center}
-    .menu{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;max-width:100%;margin:0 -12px;padding:0 12px}
+    .filtros{align-items:stretch;gap:10px;padding:16px 16px 0}
+    .menu{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;max-width:none;margin:0 -16px;padding:0 16px}
+    .hero-filtros{flex-direction:column;align-items:stretch;gap:16px}
+    .ordem-b{flex-wrap:nowrap;gap:6px}
+    .ordem button{flex:1;min-height:44px;padding:0 8px;font-size:13px}
     .menu button{padding:0 14px}
     .hero{padding:24px 16px}
     .hero h1{font-size:28px}
@@ -163,8 +178,6 @@
 <header class="topo">
   <div class="topo-in">
     <div id="marca"></div>
-    <nav class="menu" id="menu" aria-label="Categorias"></nav>
-    <span class="esp" aria-hidden="true"></span>
   </div>
   <div class="faixa" aria-hidden="true"><span style="background:var(--sky)"></span><span style="background:var(--green)"></span><span style="background:var(--orange)"></span><span style="background:var(--blue)"></span><span style="background:var(--pink)"></span><span style="background:var(--teal)"></span></div>
 </header>
@@ -172,6 +185,17 @@
   <h1>Nossas opções</h1>
   <p>Carregando o catálogo…</p>
 </section>
+<div class="filtros" id="filtros" hidden>
+  <nav class="menu" id="menu" aria-label="Categorias"></nav>
+  <div class="ordem" id="ordem" role="group" aria-labelledby="ordem-t">
+    <span class="ordem-t" id="ordem-t">Ordenar por preço</span>
+    <div class="ordem-b">
+      <button type="button" class="on" data-ordem="" aria-pressed="true">Sugestões</button>
+      <button type="button" data-ordem="menor" aria-pressed="false">Mais em conta</button>
+      <button type="button" data-ordem="maior" aria-pressed="false">Mais completas</button>
+    </div>
+  </div>
+</div>
 <main id="app"></main>
 <footer class="lgpd" id="lgpd"></footer>
 <div id="aviso" role="status"></div>
@@ -188,7 +212,8 @@
   if(DATA&&DATA<HOJE)DATA=null;
   if(!ORIG){ORIG={};['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid'].forEach(function(k){var v=q.get(k);if(v)ORIG[k]=v;});if(ORIG.fbclid)ORIG.fbclid_em=Date.now();if(document.referrer)ORIG.referrer=document.referrer.split('?')[0];guarda('_orig',JSON.stringify(ORIG));}
   var app=document.getElementById('app'),aviso=document.getElementById('aviso'),menu=document.getElementById('menu'),hero=document.getElementById('hero'),marca=document.getElementById('marca');
-  var D=null,filtro=null,enviando=false,abertos={},vistos={};
+  var D=null,filtro=null,ordem='',enviando=false,abertos={},vistos={},ordemEl=document.getElementById('ordem');
+  function menorPreco(k){return Math.min.apply(null,k.opcoes.map(function(o){return Number(o.preco)||0;}));}
   var ICO={
     decoracao_completa:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>',
     pegue_monte:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/></svg>'
@@ -216,24 +241,26 @@
         '<li><span>Esses registros ajudam '+emp+' a medir os anúncios dela na Meta. Seu telefone vai criptografado e nenhuma mensagem é compartilhada.</span></li>'+
         '<li><span>Sem cookies e sem rastreio no seu navegador.</span></li>'+
         '<li><span>Não quer participar? É só avisar na conversa e paramos em até 2 dias úteis.</span></li>'+
-      '</ul><div class="lgpd-links"><a href="privacidade.html#catalogo-anuncios" target="_blank" rel="noopener">Política de privacidade</a><a href="termos.html" target="_blank" rel="noopener">Termos de uso</a><a href="exclusao-de-dados.html" target="_blank" rel="noopener">Excluir meus dados</a></div></div></div></div></div>'+
+      '</ul><div class="lgpd-links"><a href="https://app.clientello.com.br/privacidade.html#catalogo-anuncios" target="_blank" rel="noopener">Política de privacidade</a><a href="https://app.clientello.com.br/termos.html" target="_blank" rel="noopener">Termos de uso</a><a href="https://app.clientello.com.br/exclusao-de-dados.html" target="_blank" rel="noopener">Excluir meus dados</a></div></div></div></div></div>'+
       '<p class="lgpd-rod">Catálogo de '+emp+' · tecnologia Clientello</p>';
     document.getElementById('lgpd-btn').onclick=function(){var ft=document.getElementById('lgpd'),on=!ft.classList.contains('aberto');ft.classList.toggle('aberto',on);this.setAttribute('aria-expanded',on?'true':'false');};
     if(PUB){hero.innerHTML='<h1>Escolha a decoração da sua festa</h1><p>Veja as fotos e os valores, confira se a sua data está livre e reserve pelo WhatsApp.</p>'+
-      '<form class="quando" id="quando"><label for="quando-d">Data da festa</label><div><input type="date" id="quando-d" min="'+HOJE+'" value="'+(D.data||'')+'"><button type="submit">'+(D.data?'Trocar data':'Ver disponibilidade')+'</button></div>'+
-      (D.data?'<span class="chip"><i></i>Mostrando a disponibilidade para '+dataBR(D.data)+'</span>':'<small>Opcional: mostra o que está livre no seu dia.</small>')+'</form>';return;}
-    hero.innerHTML='<h1>Nossas opções</h1><p>Veja as fotos, toque em <strong>Ver valores</strong> e escolha como prefere a sua decoração. A sua escolha vai direto para a conversa.</p>'+
-      (D.data?'<span class="chip"><i></i>Disponibilidade para '+dataBR(D.data)+'</span>':'');
+      '<div class="hero-filtros" id="hero-filtros"><form class="quando" id="quando"><label for="quando-d">Data da festa</label><div><input type="date" id="quando-d" min="'+HOJE+'" value="'+(D.data||'')+'"><button type="submit">'+(D.data?'Trocar data':'Ver disponibilidade')+'</button></div>'+
+      (D.data?'<span class="chip"><i></i>Mostrando a disponibilidade para '+dataBR(D.data)+'</span>':'<small>Opcional: mostra o que está livre no seu dia.</small>')+'</form></div>';}
+    else hero.innerHTML='<h1>Nossas opções</h1><p>Veja as fotos, toque em <strong>Ver valores</strong> e escolha como prefere a sua decoração. A sua escolha vai direto para a conversa.</p>'+
+      (D.data?'<span class="chip"><i></i>Disponibilidade para '+dataBR(D.data)+'</span>':'')+'<div class="hero-filtros" id="hero-filtros"></div>';
+    document.getElementById('hero-filtros').appendChild(ordemEl);
   }
   function render(){
     var cats=[];D.kits.forEach(function(k){if(k.categoria&&cats.indexOf(k.categoria)<0)cats.push(k.categoria);});cats.sort();
     var m='';if(cats.length>1)[null].concat(cats).forEach(function(c){m+='<button class="'+(filtro===c?'on':'')+'" data-cat="'+esc(c==null?'':c)+'">'+esc(c==null?'Todas':c)+'</button>';});
-    menu.innerHTML=m;
+    menu.innerHTML=m;document.getElementById('filtros').hidden=false;
     var lista=D.kits.filter(function(k){return (!filtro||k.categoria===filtro)&&(!LIVRES||!D.data||k.opcoes.some(function(o){return o.livre;}));});
+    if(ordem){var sinal=ordem==='maior'?-1:1;lista=lista.map(function(k,i){return {k:k,i:i,p:menorPreco(k)};}).sort(function(a,b){return (a.p-b.p)*sinal||a.i-b.i;}).map(function(x){return x.k;});}
     var h='<div class="info"><strong>'+esc(filtro||'Todas as opções')+'</strong><span>'+(LIVRES&&D.data?'Livres em '+dataBR(D.data)+' · <button class="todas" data-todas="1">ver todas</button> · ':'')+lista.length+(lista.length===1?' opção':' opções')+'</span></div><section class="grade">';
     if(!lista.length)h+='<p class="vazio">Nenhuma opção nesta categoria.</p>';
     lista.forEach(function(k){
-      var aberto=abertos[k.id]!=null?abertos[k.id]:!!k.escolhido,min=Math.min.apply(null,k.opcoes.map(function(o){return Number(o.preco)||0;}));
+      var aberto=abertos[k.id]!=null?abertos[k.id]:!!k.escolhido,min=menorPreco(k);
       h+='<article class="kit'+(k.escolhido?' escolhido':'')+(aberto?' aberto':'')+'">'+
         '<div class="foto">'+(k.foto?'<img src="'+esc(k.foto)+'" alt="'+esc(k.nome)+'" loading="lazy"><button class="ampliar" data-zoom="'+esc(k.foto)+'" data-nome="'+esc(k.nome)+'" aria-label="Ampliar foto de '+esc(k.nome)+'"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></span></button>':'')+
           (k.categoria&&!filtro?'<span class="selo">'+esc(k.categoria)+'</span>':'')+
@@ -257,7 +284,13 @@
   }
   menu.addEventListener('click',function(e){
     var b=e.target.closest('button');if(!b)return;
-    filtro=b.getAttribute('data-cat')||null;render();window.scrollTo(0,0);
+    filtro=b.getAttribute('data-cat')||null;render();
+  });
+  ordemEl.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-ordem]');if(!b)return;
+    ordem=b.getAttribute('data-ordem');
+    this.querySelectorAll('button').forEach(function(x){var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false');});
+    render();
   });
   var zoom=document.getElementById('zoom'),zImg=document.getElementById('zoom-img'),zCap=document.getElementById('zoom-cap'),zVolta=null;
   function abrirZoom(src,nome,de){zImg.src=src;zImg.alt=nome;zCap.textContent=nome;zVolta=de;zoom.classList.add('on');zoom.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';document.getElementById('zoom-x').focus();}
